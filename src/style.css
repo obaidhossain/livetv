@@ -1,3 +1,38 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer utilities {
+  .touch-manipulation {
+    touch-action: manipulation;
+  }
+
+  /* Optimize video playback on mobile */
+  video {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Better scrollbar hiding on mobile */
+  @media (max-width: 1023px) {
+    .overflow-y-auto {
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    .overflow-y-auto::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  /* Safe area support for notched devices */
+  @supports (padding: max(0px)) {
+    header {
+      padding-left: max(0.75rem, env(safe-area-inset-left));
+      padding-right: max(0.75rem, env(safe-area-inset-right));
+    }
+
+    #channel-info {
+      padding-left: max(0.75rem, env(safe-area-inset-left));
+      padding-right: max(0.75rem, env(safe-area-inset-right));
+    }
+  }
+}

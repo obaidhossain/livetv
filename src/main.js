@@ -30,6 +30,26 @@ const channelName = $('#channel-name')
 const channelGroup = $('#channel-group')
 const channelCount = $('#channel-count')
 const liveToggle = $('#live-toggle')
+const menuToggle = $('#menu-toggle')
+const closeSidebar = $('#close-sidebar')
+const sidebar = $('#sidebar')
+const sidebarOverlay = $('#sidebar-overlay')
+const openChannelListBtn = $('#open-channel-list')
+
+let isSidebarOpen = false
+
+function toggleSidebar(open) {
+  isSidebarOpen = open !== undefined ? open : !isSidebarOpen
+  sidebar.classList.toggle('-translate-x-full', !isSidebarOpen)
+  sidebar.classList.toggle('translate-x-0', isSidebarOpen)
+  sidebarOverlay.classList.toggle('hidden', !isSidebarOpen)
+  document.body.classList.toggle('overflow-hidden', isSidebarOpen)
+}
+
+menuToggle?.addEventListener('click', () => toggleSidebar(true))
+closeSidebar?.addEventListener('click', () => toggleSidebar(false))
+sidebarOverlay?.addEventListener('click', () => toggleSidebar(false))
+openChannelListBtn?.addEventListener('click', () => toggleSidebar(true))
 
 function destroyHLS() {
   if (hls) {
@@ -206,12 +226,16 @@ function selectChannel(channel) {
     activeItem.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
   }
 
+  if (window.innerWidth < 1024) {
+    toggleSidebar(false)
+  }
+
   playStream(channel.url)
 }
 
 function createChannelItem(channel) {
   const div = document.createElement('div')
-  div.className = 'channel-item flex items-center gap-3 px-4 py-2.5 border-l-2 border-l-transparent hover:bg-gray-800/50 transition-colors cursor-pointer'
+  div.className = 'channel-item flex items-center gap-3 px-3 md:px-4 py-3 md:py-2.5 border-l-2 border-l-transparent hover:bg-gray-800/50 active:bg-gray-800/80 transition-colors cursor-pointer touch-manipulation'
   div.dataset.url = channel.url
 
   const status = channelStatus.get(channel.url)
@@ -263,8 +287,8 @@ function renderChannels(list) {
 
   if (!list.length) {
     const empty = document.createElement('div')
-    empty.className = 'flex flex-col items-center justify-center h-full text-gray-500 px-4'
-    empty.innerHTML = '<p class="text-sm">No channels found</p>'
+    empty.className = 'flex flex-col items-center justify-center h-full text-gray-500 px-4 py-8'
+    empty.innerHTML = '<p class="text-sm">No channels found</p><p class="text-xs mt-1 text-gray-600">Try adjusting your search or filters</p>'
     channelList.appendChild(empty)
     return
   }
@@ -280,7 +304,7 @@ function renderChannels(list) {
 
   for (const group of sortedGroups) {
     const header = document.createElement('div')
-    header.className = 'category-header flex items-center gap-2 px-4 py-1.5 mt-2 first:mt-0'
+    header.className = 'category-header flex items-center gap-2 px-3 md:px-4 py-2 md:py-1.5 mt-2 first:mt-0 sticky top-0 bg-gray-900 z-10'
     header.innerHTML = `<span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">${group}</span><span class="text-xs text-gray-700">${grouped[group].length}</span>`
     channelList.appendChild(header)
 
@@ -341,13 +365,13 @@ async function loadPlaylist() {
     }
   } catch (err) {
     loading.innerHTML = `
-      <div class="flex flex-col items-center gap-3 px-4 text-center">
+      <div class="flex flex-col items-center gap-3 px-4 py-8 text-center">
         <svg class="w-10 h-10 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
         </svg>
         <p class="text-sm text-gray-400">Failed to load playlist</p>
-        <p class="text-xs text-gray-600">${err.message}</p>
-        <button onclick="location.reload()" class="mt-2 text-xs text-blue-400 hover:text-blue-300 underline">Retry</button>
+        <p class="text-xs text-gray-600 break-words max-w-[200px]">${err.message}</p>
+        <button onclick="location.reload()" class="mt-2 px-4 py-2 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors">Retry</button>
       </div>`
   }
 }
