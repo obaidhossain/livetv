@@ -1,7 +1,7 @@
 import './style.css'
 import { parseM3U } from './m3u-parser.js'
 
-const M3U_URL = 'src/FiFa-2026.m3u8'
+const M3U_URL = 'https://raw.githubusercontent.com/obaidhossain/livetv/refs/heads/main/src/FiFa-2026.m3u8'
 
 let channels = []
 let filteredChannels = []
